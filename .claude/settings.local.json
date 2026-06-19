@@ -5,7 +5,15 @@
       "Skill(claude-api:*)",
       "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --no-src-dir --import-alias \"@/*\" --yes)",
       "Read(//Users/michaelsoares/**)",
-      "Bash(npx create-next-app@latest loantest --typescript --tailwind --eslint --app --no-src-dir --import-alias \"@/*\" --yes)"
+      "Bash(npx create-next-app@latest loantest --typescript --tailwind --eslint --app --no-src-dir --import-alias \"@/*\" --yes)",
+      "Bash(npm install *)",
+      "Bash(npx tsc *)",
+      "Bash(node -e \"const sdk = require\\('@anthropic-ai/sdk'\\); const c = new sdk.default\\(\\); console.log\\(Object.keys\\(sdk\\)\\)\")",
+      "Bash(node -e \"const sdk = require\\('@anthropic-ai/sdk'\\); console.log\\(JSON.stringify\\(sdk.default.DEFAULT_HEADERS\\)\\)\")",
+      "Bash(curl -s http://localhost:3000)",
+      "Bash(kill 44943)",
+      "Bash(git add *)",
+      "Bash(git commit *)"
     ]
   }
 }
