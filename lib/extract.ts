@@ -3,7 +3,15 @@ import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
 import { z } from 'zod';
 import type { ExtractedFields, Flag } from './testCases';
 
-const client = new Anthropic();
+function getClient(): Anthropic {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    throw new Error(
+      'ANTHROPIC_API_KEY is not configured. Add it to .env.local locally or Vercel Environment Variables for production.'
+    );
+  }
+  return new Anthropic({ apiKey });
+}
 
 export interface ExtractionResult {
   extracted: ExtractedFields;
@@ -28,10 +36,10 @@ const LoanExtractionSchema = z.object({
 });
 
 export async function extractLoanData(text: string): Promise<ExtractionResult> {
+  const client = getClient();
   const response = await client.messages.parse({
     model: 'claude-opus-4-8',
     max_tokens: 2048,
-    thinking: { type: 'adaptive' },
     output_config: {
       format: zodOutputFormat(LoanExtractionSchema),
     },
@@ -46,7 +54,9 @@ Severity rules:
 
 Required fields that must be flagged if missing: statedMonthlyIncome (or statedAnnualIncome), requestedLoanAmount.
 
-If monthly and annual income are both stated but don't match (monthly × 12 ≠ annual, allowing 5% tolerance), flag as red.
+If monthly and annual income are both stated but don't match (monthly × 12 ≠ annual, allowing 5% tolerance), flag as red on field "statedMonthlyIncome".
+
+For each flag, the "field" value must be one of the extracted field names: applicantName, statedMonthlyIncome, statedAnnualIncome, employerName, employmentLength, requestedLoanAmount, loanPurpose.
 
 Document:
 ${text}`,

@@ -83,7 +83,7 @@ Note: My total annual income including bonuses is around $75,000.`,
     },
     expectedFlags: [
       {
-        field: 'income',
+        field: 'statedMonthlyIncome',
         severity: 'red',
         reason:
           'Monthly income of $5,200 implies an annual income of $62,400, but the stated annual income is $75,000 — a discrepancy of $12,600.',
