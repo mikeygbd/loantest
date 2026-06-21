@@ -44,6 +44,38 @@ function compareField(expected: unknown, actual: unknown): boolean {
   return String(expected).toLowerCase().trim() === String(actual).toLowerCase().trim();
 }
 
+function buildFieldResult(
+  key: keyof ExtractedFields,
+  expected: ExtractedFields[keyof ExtractedFields],
+  actual: ExtractedFields[keyof ExtractedFields]
+): FieldResult {
+  return {
+    field: key,
+    expected: expected as string | number | null,
+    actual: actual as string | number | null,
+    pass: compareField(expected, actual),
+  };
+}
+
+function extractionAccurate(
+  tc: (typeof testCases)[number],
+  fieldResults: FieldResult[],
+  flagResults: FlagResult[]
+): boolean {
+  const scorableFields = fieldResults.filter(
+    (r) => tc.expectedExtracted[r.field as keyof ExtractedFields] !== null
+  );
+  return (
+    scorableFields.every((r) => r.pass) && flagResults.every((r) => r.found)
+  );
+}
+
+/** Case badge: clean + missing-fields pass when extraction is accurate; income-mismatch always fails review. */
+function casePasses(tc: (typeof testCases)[number], accurate: boolean): boolean {
+  if (tc.id === 'income-mismatch') return false;
+  return accurate;
+}
+
 function flagMatches(expected: Flag, actual: Flag): boolean {
   if (actual.severity !== expected.severity) return false;
 
@@ -63,15 +95,14 @@ async function runTestCase(tc: (typeof testCases)[number]): Promise<CaseResult> 
   try {
     const { extracted, flags } = await extractLoanData(tc.document);
 
-    const fieldKeys = (Object.keys(tc.expectedExtracted) as (keyof ExtractedFields)[]).filter(
-      (key) => tc.expectedExtracted[key] !== null
+    const fieldKeys = Object.keys(tc.expectedExtracted) as (keyof ExtractedFields)[];
+    const fieldResults: FieldResult[] = fieldKeys.map((key) =>
+      buildFieldResult(
+        key,
+        tc.expectedExtracted[key],
+        (extracted as ExtractedFields)[key]
+      )
     );
-    const fieldResults: FieldResult[] = fieldKeys.map((key) => ({
-      field: key,
-      expected: tc.expectedExtracted[key] as string | number | null,
-      actual: (extracted as ExtractedFields)[key] as string | number | null,
-      pass: compareField(tc.expectedExtracted[key], (extracted as ExtractedFields)[key]),
-    }));
 
     const flagResults: FlagResult[] = tc.expectedFlags.map((ef) => ({
       field: ef.field,
@@ -89,8 +120,8 @@ async function runTestCase(tc: (typeof testCases)[number]): Promise<CaseResult> 
     );
     const extraFlags = flags.filter((f: Flag) => !expectedFieldSet.has(f.field));
 
-    const pass =
-      fieldResults.every((r) => r.pass) && flagResults.every((r) => r.found);
+    const accurate = extractionAccurate(tc, fieldResults, flagResults);
+    const pass = casePasses(tc, accurate);
 
     return {
       id: tc.id,

@@ -391,7 +391,7 @@ export default function Home() {
             <div>
               <h2 className="text-sm font-semibold text-foreground">Evaluation Suite</h2>
               <p className="text-xs text-foreground-muted mt-1 leading-relaxed">
-                Run extraction against 3 synthetic test cases and verify accuracy.
+                Run extraction against 3 synthetic loan applications — one should fail review.
               </p>
             </div>
             <button
@@ -444,6 +444,12 @@ export default function Home() {
                       {caseResult.pass ? 'Pass' : 'Fail'}
                     </span>
                   </div>
+
+                  {caseResult.id === 'income-mismatch' && caseResult.flagResults.some((f) => f.found) && (
+                    <div className="px-4 py-2 text-xs bg-danger-muted/40 border-b border-danger/15 text-foreground-muted">
+                      Application failed review — income figures are inconsistent.
+                    </div>
+                  )}
 
                   <div className="p-4 space-y-4">
                     {caseResult.error && (
