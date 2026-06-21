@@ -3,8 +3,14 @@ import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
 import { z } from 'zod';
 import type { ExtractedFields, Flag } from './testCases';
 
+export function getAnthropicApiKey(): string | undefined {
+  // Bracket access prevents Next.js from inlining undefined at build time when
+  // the var is missing locally; Vercel injects secrets at runtime instead.
+  return process.env['ANTHROPIC_API_KEY'];
+}
+
 function getClient(): Anthropic {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = getAnthropicApiKey();
   if (!apiKey) {
     throw new Error(
       'ANTHROPIC_API_KEY is not configured. Add it to .env.local locally or Vercel Environment Variables for production.'

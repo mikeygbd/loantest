@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { extractLoanData } from '@/lib/extract';
+import { extractLoanData, getAnthropicApiKey } from '@/lib/extract';
 import { testCases } from '@/lib/testCases';
 import type { ExtractedFields, Flag } from '@/lib/testCases';
 
@@ -114,7 +114,7 @@ async function runTestCase(tc: (typeof testCases)[number]): Promise<CaseResult> 
 }
 
 export async function GET() {
-  if (!process.env.ANTHROPIC_API_KEY) {
+  if (!getAnthropicApiKey()) {
     const message =
       'ANTHROPIC_API_KEY is not configured. Add it in Vercel project settings under Environment Variables, then redeploy.';
     return NextResponse.json(
