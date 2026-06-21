@@ -70,10 +70,9 @@ function extractionAccurate(
   );
 }
 
-/** Case badge: clean + missing-fields pass when extraction is accurate; income-mismatch always fails review. */
+/** Case badge reflects loan review outcome: only a clean application passes. */
 function casePasses(tc: (typeof testCases)[number], accurate: boolean): boolean {
-  if (tc.id === 'income-mismatch') return false;
-  return accurate;
+  return tc.id === 'clean' && accurate;
 }
 
 function flagMatches(expected: Flag, actual: Flag): boolean {
