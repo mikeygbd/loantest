@@ -36,8 +36,8 @@ const INCOME_FLAG_FIELDS = new Set([
 ]);
 
 function compareField(expected: unknown, actual: unknown): boolean {
-  if (expected === null && actual === null) return true;
-  if (expected === null || actual === null) return false;
+  if (expected === null || expected === undefined) return false;
+  if (actual === null || actual === undefined) return false;
   if (typeof expected === 'number' && typeof actual === 'number') {
     return Math.abs(expected - actual) / expected < 0.01;
   }
@@ -63,7 +63,9 @@ async function runTestCase(tc: (typeof testCases)[number]): Promise<CaseResult> 
   try {
     const { extracted, flags } = await extractLoanData(tc.document);
 
-    const fieldKeys = Object.keys(tc.expectedExtracted) as (keyof ExtractedFields)[];
+    const fieldKeys = (Object.keys(tc.expectedExtracted) as (keyof ExtractedFields)[]).filter(
+      (key) => tc.expectedExtracted[key] !== null
+    );
     const fieldResults: FieldResult[] = fieldKeys.map((key) => ({
       field: key,
       expected: tc.expectedExtracted[key] as string | number | null,

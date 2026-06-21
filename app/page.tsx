@@ -67,6 +67,11 @@ function SeverityDot({ severity }: { severity: 'red' | 'yellow' }) {
   );
 }
 
+function formatEvalValue(value: string | number | null) {
+  if (value === null) return 'Not provided';
+  return String(value);
+}
+
 export default function Home() {
   const [text, setText] = useState('');
   const [file, setFile] = useState<File | null>(null);
@@ -474,19 +479,11 @@ export default function Home() {
                                   {FIELD_LABELS[fr.field as keyof ExtractedFields] ?? fr.field}
                                 </td>
                                 <td className="py-2 px-3 font-mono">
-                                  {fr.expected === null ? (
-                                    <em className="text-foreground-subtle">null</em>
-                                  ) : (
-                                    String(fr.expected)
-                                  )}
+                                  {formatEvalValue(fr.expected)}
                                 </td>
                                 <td className="py-2 px-3 font-mono">
                                   <span className="flex items-center gap-1.5">
-                                    {fr.actual === null ? (
-                                      <em className="text-foreground-subtle">null</em>
-                                    ) : (
-                                      String(fr.actual)
-                                    )}
+                                    {formatEvalValue(fr.actual)}
                                     <span className={fr.pass ? 'text-success' : 'text-danger'}>
                                       {fr.pass ? '✓' : '✗'}
                                     </span>
